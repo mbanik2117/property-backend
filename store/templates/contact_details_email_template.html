@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Details</title>
+    <style>
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            width: 300px;
+        }
+        .card p {
+            margin: 8px 0;
+        }
+        .name {
+            font-weight: bold;
+        }
+        .email {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Contact Details</h2>
+        <p><span class="name">Owner Name:</span> {{ property.owner_name }}</p>
+        <p><span class="name">Contact Number:</span> {{ property.contact_number }}</p>
+        <p><span class="name">Title:</span> {{ property.title }}</p>
+        <p><span class="name">Content:</span> {{ property.content }}</p>
+        <p><span class="name">City:</span> {{ property.city }}</p>
+        <p><span class="name">Area:</span> {{ property.area }}</p>
+        <p><span class="name">Locality:</span> {{ property.locality }}</p>
+        <p><span class="name">Floor:</span> {{ property.floor }}</p>
+        <p><span class="name">Property Type:</span> {{ property.get_property_type_display }}</p>
+        <p><span class="name">Transaction Type:</span> {{ property.get_transaction_type_display }}</p>
+        <p><span class="name">Price:</span> {{ property.price }}</p>
+        <p><span class="name">Area Sqft:</span> {{ property.area_sqft }}</p>
+        <p><span class="name">Facing Direction:</span> {{ property.get_facing_direction_display }}</p>
+        <p><span class="name">Status:</span> {{ property.get_status_display }}</p>
+        <p><span class="name">Created At:</span> {{ property.created_at }}</p>
+    </div>
+</body>
+</html>

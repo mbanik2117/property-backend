@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_NAME=ecom_android
+      - DB_USER=ecomuser
+      - DB_PASSWORD=arka@1256
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    networks:
+      - app_network
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ecom_android
+      POSTGRES_USER: ecomuser
+      POSTGRES_PASSWORD: arka@1256
+    networks:
+      - app_network
+
+  redis:
+    image: "redis:alpine"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
