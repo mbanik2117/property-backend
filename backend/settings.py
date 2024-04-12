@@ -15,19 +15,21 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_593ch76!mt4+j2owb%__91517sqk=1-n7*0=@ki*ok%)ez)*n'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['.vercel.app']
 
 # Application definition
 
@@ -77,21 +79,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "ecom_android",
-        "USER": "ecomuser",
-        "PASSWORD": "arka@1256",
-        "HOST": "db",
-        "PORT": "5432",
-    }
-}
 
+import dj_database_url
+database_url = os.getenv("DATABASE_URL")
+DATABASES = {
+    'default': dj_database_url.parse(
+        database_url,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -111,7 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -124,15 +123,11 @@ USE_I18N = True
 USE_TZ = False
 
 import os
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_URL = 'static/'
-
-STATIC_ROOT = '/app/staticfiles/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 # ...
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -143,13 +138,16 @@ import os
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+# ...
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-
+CORS_ALLOW_ALL_HEADERS = True
 AUTH_USER_MODEL = 'accounts.CustomUser'
-
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -169,19 +167,20 @@ REST_FRAMEWORK = {
 from celery.schedules import crontab
 
 # Celery configuration
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_ENABLE_UTC = True
 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587  # or the appropriate port for your SMTP server
+EMAIL_BACKEND = os.getenv("BACKEND")
+EMAIL_HOST = os.getenv("HOST")
+EMAIL_PORT = os.getenv("PORT")  # or the appropriate port for your SMTP server
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'dacretail2024@gmail.com'
-EMAIL_HOST_PASSWORD = 'tbal rnoa szak uoyb'
+EMAIL_HOST_USER = os.getenv("HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("HOST_PASSWORD")
+
+
+
