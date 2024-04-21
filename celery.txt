@@ -1,0 +1,28 @@
+sudo apt install supervisor
+
+
+
+
+sudo nano /etc/supervisor/conf.d/celery-worker.conf
+
+
+put these commands inside the above file:
+
+[program:celery-worker]
+command=/path/to/your/virtualenv/bin/celery -A your_project worker -l info
+directory=/path/to/your/django/project
+user=your_username
+autostart=true
+autorestart=true
+stopasgroup=true
+
+
+
+
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl restart celery-worker
+
+
+
