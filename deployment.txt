@@ -1,0 +1,361 @@
+CREATE AN USRE ecomuser AND ACTIVATE IT AND USE THAT USER: DO NOT USE ROOTUSER.
+
+sudo apt update
+sudo apt install python3-venv python3-dev libpq-dev postgresql postgresql-contrib nginx curl
+
+
+
+
+sudo -u postgres psql
+
+CREATE DATABASE ecombusiness ;
+
+
+CREATE USER ecomuser WITH PASSWORD 'TM7PNw4mjAWOW31OZKKwC7R8Clvq2g6iOiL5dUdueLUV7JtXSkcifnh2oo7yiQgN';
+
+
+
+ALTER ROLE ecomuser SET client_encoding TO 'utf8';
+ALTER ROLE ecomuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE ecomuser SET timezone TO 'UTC';
+
+
+
+GRANT ALL PRIVILEGES ON DATABASE ecombusiness TO ecomuser;
+
+
+\q
+
+
+git clone https://github.com/mbanik2117/ecommerce-RESTAPI.git
+
+
+cd ecommerce-RESTAPI
+
+
+python3 -m venv env
+
+
+
+
+
+source /home/ecomuser/ecommerce-RESTAPI/env/bin/activate
+
+
+
+pip install -r requirements.txt
+
+
+
+
+python manage.py makemigrations
+python manage.py migrate
+
+
+
+
+
+
+python manage.py createsuperuser
+
+
+
+
+pyhton manage.py collectstatic
+
+
+
+
+
+
+
+
+sudo nano /etc/systemd/system/gunicorn.socket
+
+PUT THESE CODE IN THE FILE:
+
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+
+
+SAVE AND CLOSE THE ABOVE FILE AND EXEC THESE COMMANDS:
+
+
+
+sudo nano /etc/systemd/system/gunicorn.service
+
+
+
+
+
+PUT THESE CODE IN THE FILE:
+
+
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=sammy
+Group=www-data
+WorkingDirectory=/home/ecomuser/ecommerce-RESTAPI
+ExecStart=/home/ecomuser/ecommerce-RESTAPI/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          microservice.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+SAVE AND CLOSE THE ABOVE FILE AND EXEC THESE COMMANDS:
+
+
+
+
+
+
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+
+
+
+
+
+
+sudo systemctl status gunicorn.socket
+
+
+
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+
+
+
+file /run/gunicorn.sock
+
+
+
+
+
+
+sudo systemctl status gunicorn
+
+sudo journalctl -u gunicorn
+
+
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+
+
+curl --unix-socket /run/gunicorn.sock localhost
+
+
+
+
+
+sudo systemctl status gunicorn
+
+
+
+sudo nano /etc/nginx/sites-available/ecommerce-RESTAPI
+
+PUT THESE CODE IN THE FILE:
+
+                                                                                 
+server {
+    listen 80;
+    server_name propertybackend.xyz;
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+    alias /home/ubuntu/property-backend/static/;
+    expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+    location /media/ {
+    alias /home/ubuntu/property-backend/media/;
+    expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+}
+
+
+server {
+    listen 80;
+    server_name propertybackend.xyz;  # Replace 'example.com' with your domain name
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        alias /home/ubuntu/property-backend/static/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+    location /media/ {
+        alias /home/ubuntu/property-backend/media/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+    # SSL configuration
+    listen 443 ssl;  # Listen on port 443 for HTTPS
+    ssl_certificate /etc/letsencrypt/live/propertybackend.xyz/fullchain.pem;  # Replace 'example.com' with your domain name
+    ssl_certificate_key /etc/letsencrypt/live/propertybackend.xyz/privkey.pem;  # Replace 'example.com' with your domain name
+
+    # Include Let's Encrypt configuration for SSL
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Redirect HTTP to HTTPS
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
+}
+
+
+
+
+SAVE AND CLOSE THE FILE AND EXEC THESE COMMANDS:
+
+sudo ln -s /etc/nginx/sites-available/ecommerce-RESTAPI  /etc/nginx/sites-enabled
+
+
+
+sudo nginx -t
+
+sudo apt update
+
+sudo apt install redis-server
+
+
+sudo systemctl status redis-server
+
+
+sudo apt install supervisor
+
+sudo nano /etc/supervisor/conf.d/celery-worker.conf
+
+PUT THIS INTO FILE:
+
+[program:celery-worker]
+command=/home/ecomuser/ecommerce-RESTAPI/env/bin/celery -A microservice worker -l info
+directory=/home/ecomuser/ecommerce-RESTAPI
+user=ecomuser
+autostart=true
+autorestart=true
+stopasgroup=true
+
+
+SAVE AND CLOSE THE ABOVE FILE AND EXEC THESE COMMANDS:
+
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl restart celery-worker
+
+
+sudo systemctl restart nginx
+
+
+sudo ufw allow 'Nginx Full'
+
+
+
+sudo tail -F /var/log/nginx/error.log
+
+
+
+sudo apt update
+sudo apt install openssl
+
+
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+
+
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+
+sudo systemctl restart nginx
+
+
+
+
+server {
+    listen 80;
+    server_name propertybackend.xyz;  # Replace 'example.com' with your domain name
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        alias /home/ubuntu/property-backend/static/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+    location /media/ {
+        alias /home/ubuntu/property-backend/media/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+        try_files $uri =404;
+    }
+    # Redirect HTTP to HTTPS
+    location /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+    }
+
+    location ~ /.well-known/acme-challenge/(.*) {
+        root /var/www/letsencrypt;
+        try_files $uri =404;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+
+    # Include Let's Encrypt configuration for SSL
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+
+ sudo certbot certonly --nginx -d propertybackend.xyz -d www.propertybackend.xyz --email adcretail2024@gmail.com --agree-tos
+
+sudo certbot -d propertybackend.xyz -d www.propertybackend.xyz --manual --preferred-challenges dns certonly
+
+
+
+http {
+    ...
+    client_max_body_size 10M;
+    ...
+}
