@@ -4,7 +4,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import PropertyCreateView, PropertyImageCreateView, PropertyVideoCreateView, HomeView, get_user_details, \
-    UserPropertiesListView, PropertyListView, SendVerificationCodeView, VerifyVerificationCodeView
+    UserPropertiesListView, PropertyListView, SendVerificationCodeView, VerifyVerificationCodeView, ShortlistedPropertyListView,ShortlistedPropertyDetailView
 
 urlpatterns = [
     path('property/', PropertyCreateView.as_view(), name='property-list-create'),
@@ -16,6 +16,8 @@ urlpatterns = [
     path('property-filter/', PropertyListView.as_view(), name='property-list'),
     path('send-verification-code/', SendVerificationCodeView.as_view(), name='send_verification_code'),
     path('verify-verification-code/', VerifyVerificationCodeView.as_view(), name='verify_verification_code'),
+    path('shortlist/', ShortlistedPropertyListView.as_view(), name='shortlist-property-list'),
+    path('shortlist/<int:property_id>/', ShortlistedPropertyDetailView.as_view(), name='shortlist-property-detail'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
