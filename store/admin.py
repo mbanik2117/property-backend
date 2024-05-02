@@ -31,3 +31,10 @@ class PropertyImageAdmin(admin.ModelAdmin):
 class PropertyVideoAdmin(admin.ModelAdmin):
     list_display = ('property',)
     search_fields = ('property__title',)
+
+
+@admin.register(ShortlistedProperty)
+class ShortlistedPropertyAdmin(admin.ModelAdmin):
+    list_display = ('user', 'property', 'created_at')
+    list_filter = ('user',)
+    search_fields = ('user__email', 'property__title')
