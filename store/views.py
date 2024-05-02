@@ -227,3 +227,30 @@ class VerifyVerificationCodeView(APIView):
 
             # Return a detailed error response
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+
+class ShortlistedPropertyListView(generics.ListCreateAPIView):
+    queryset = ShortlistedProperty.objects.all()
+    serializer_class = ShortlistedPropertySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+
+class ShortlistedPropertyDetailView(generics.RetrieveDestroyAPIView):
+    queryset = ShortlistedProperty.objects.all()
+    serializer_class = ShortlistedPropertySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        try:
+            return self.queryset.get(user=self.request.user, property_id=self.kwargs['property_id'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
