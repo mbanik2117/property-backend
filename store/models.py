@@ -72,3 +72,12 @@ class PropertyVideo(models.Model):
 
     def __str__(self):
         return f'Video for Property {self.property_id}'
+
+
+class ShortlistedProperty(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Shortlisted Property {self.property.id} by {self.user.email} - {self.created_at}'
