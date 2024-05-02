@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from .models import Property, PropertyImage, PropertyVideo
 from accounts.models import CustomUser
-
+from .models import ShortlistedProperty
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,3 +37,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'first_name', 'last_name']
+
+
+class ShortlistedPropertySerializer(serializers.ModelSerializer):
+    property = PropertySerializer()  # Serialize the related Property object
+
+    class Meta:
+        model = ShortlistedProperty
+        fields = ['id', 'user', 'property', 'created_at']
