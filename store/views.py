@@ -7,8 +7,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Property, PropertyImage, PropertyVideo
-from .serializers import PropertySerializer, PropertyImageSerializer, PropertyVideoSerializer
+from .models import Property, PropertyImage, PropertyVideo, ShortlistedProperty
+from .serializers import PropertySerializer, PropertyImageSerializer, PropertyVideoSerializer , ShortlistedPropertySerializer
 from .serializers import CustomUserSerializer
 from rest_framework import status
 from django.db import transaction
